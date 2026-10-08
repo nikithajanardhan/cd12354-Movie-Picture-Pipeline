@@ -1,4 +1,4 @@
-name: Frontend Continuous Integration
+﻿name: Frontend Continuous Integration
 
 on:
   pull_request:
@@ -7,24 +7,21 @@ on:
     paths:
       - "starter/frontend/**"
       - ".github/workflows/frontend-ci.yaml"
-
   workflow_dispatch:
 
 jobs:
   lint:
     name: Frontend Lint
     runs-on: ubuntu-latest
-
     defaults:
       run:
         working-directory: starter/frontend
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Set up Node.js
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v4
         with:
           node-version: "18.14.0"
           cache: npm
@@ -39,17 +36,15 @@ jobs:
   test:
     name: Frontend Tests
     runs-on: ubuntu-latest
-
     defaults:
       run:
         working-directory: starter/frontend
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Set up Node.js
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v4
         with:
           node-version: "18.14.0"
           cache: npm
@@ -69,10 +64,20 @@ jobs:
     needs:
       - lint
       - test
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Set up Node.js and restore npm cache
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18.14.0"
+          cache: npm
+          cache-dependency-path: starter/frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        working-directory: starter/frontend
+        run: npm ci
 
       - name: Build frontend Docker image
         run: |
